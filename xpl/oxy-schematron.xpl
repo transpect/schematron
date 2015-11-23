@@ -11,6 +11,15 @@
     <p>The reason for selecting oXygen’s implementation is that it expands placeholders in (sch:report | sch:assert)/@role.</p>
     <p>It isn’t fully featured yet. For example, assert-valid doesn’t have an effect.</p>
   </p:documentation>
+  <p:option name="family" select="'unspecified'">
+    <p:documentation>The Schematron checking rule “family”, a set of rules with same categories. They will be
+    displayed by tr:patch-svrl.</p:documentation>
+  </p:option>
+  <p:option name="step-name" select="''">
+    <p:documentation>The XProc step whose output has been checked. This will be displayed by tr:patch-svrl.</p:documentation>
+  </p:option>
+  <p:option name="assert-valid" select="'false'"/>
+  <p:option name="phase" select="'#ALL'"/>
   <p:input port="source" primary="true"/>
   <p:input port="schema"/>
   <p:input port="parameters" kind="parameter" primary="true"/>
@@ -46,11 +55,12 @@
     <p:input port="stylesheet">
       <p:pipe port="sch2xsl" step="validate-with-schematron"></p:pipe>
     </p:input>
+    <p:with-param name="phase" select="$phase"/>
   </p:xslt>
   
   <p:sink/>
   
-  <p:xslt name="apply-xsl">
+  <p:xslt>
     <p:input port="source">
       <p:pipe port="source" step="validate-with-schematron"/>
     </p:input>
@@ -61,6 +71,14 @@
       <p:pipe port="result" step="create-xsl"/>
     </p:input>
   </p:xslt>
+  
+  <p:add-attribute attribute-name="tr:family" match="/*">
+    <p:with-option name="attribute-value" select="$family"/>
+  </p:add-attribute>
+  
+  <p:add-attribute attribute-name="tr:step-name" name="apply-xsl" match="/*">
+    <p:with-option name="attribute-value" select="$step-name"/>
+  </p:add-attribute>
   
   <p:sink/>
   
