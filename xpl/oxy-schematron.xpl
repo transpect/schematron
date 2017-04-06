@@ -35,11 +35,33 @@
   <p:output port="report">
     <p:pipe port="result" step="apply-xsl"></p:pipe>
   </p:output>
-
+  
   <p:xslt>
     <p:input port="source">
       <p:pipe port="schema" step="validate-with-schematron"/>
     </p:input>
+     <p:input port="parameters">
+      <p:pipe port="parameters" step="validate-with-schematron"/>
+    </p:input>
+     <p:input port="stylesheet">
+       <p:inline>
+         <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+           xmlns:iso="http://purl.oclc.org/dsdl/schematron" version="2.0">
+           <xsl:template match="iso:include">
+             <xsl:apply-templates select="document(@href)"/>
+           </xsl:template>
+           
+           <xsl:template match="@*| node()">
+             <xsl:copy>
+               <xsl:apply-templates select="@*, node()"/>
+             </xsl:copy>
+           </xsl:template>
+         </xsl:stylesheet>
+       </p:inline>
+     </p:input>
+  </p:xslt>
+  
+  <p:xslt>
     <p:input port="parameters">
       <p:pipe port="parameters" step="validate-with-schematron"/>
     </p:input>
@@ -75,7 +97,7 @@
   <p:add-attribute attribute-name="tr:family" match="/*">
     <p:with-option name="attribute-value" select="$family"/>
   </p:add-attribute>
-  
+
   <p:add-attribute attribute-name="tr:step-name" name="apply-xsl" match="/*">
     <p:with-option name="attribute-value" select="$step-name"/>
   </p:add-attribute>
