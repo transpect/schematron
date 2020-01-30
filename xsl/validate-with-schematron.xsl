@@ -5,7 +5,7 @@
   xmlns:sch="http://purl.oclc.org/dsdl/schematron"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="3.0">
 
-  <!-- Invocation: saxon -s:file:///path/to/doc.xml -xsl:validate-with-schematron.xsl -it \
+  <!-- Invocation: saxon -s:file:///path/to/doc.xml -xsl:validate-with-schematron.xsl \
                    schema-uri=file:///path/to/schema.sch -o:out.svrl debug=true -->
 
   <xsl:param name="schema-uri" as="xs:string"/>
@@ -29,19 +29,19 @@
   <xsl:variable name="generated-xsl" as="document-node(element(xsl:stylesheet))"
     select="transform(map{'stylesheet-location': '../dist/iso_svrl_for_xslt2.xsl',
                           'source-node': $expanded-abstract-patterns,
-                          'stylesheet-params': map{'allow-foreign': 'true'}
+                          'stylesheet-params': map{xs:QName('allow-foreign'): 'true'}
                          }) ? output">
   </xsl:variable>
 
-  <xsl:template name="xsl:initial-template">
+  <xsl:template match="/">
     <xsl:if test="$debug">
       <xsl:call-template name="debug">
         <xsl:with-param name="debug-dir-uri" 
-          select="($debug-dir-uri, replace(base-uri(/), '^(.+/).+$', '$1') || 'debug-sch/')[1]"/>
+          select="($debug-dir-uri, replace(base-uri(), '^(.+/).+$', '$1') || 'debug-sch/')[1]"/>
       </xsl:call-template>
     </xsl:if>
     <xsl:sequence select="transform(map{'stylesheet-node': $generated-xsl,
-                          'source-node': /}) ? output"/>
+                          'source-node': .}) ? output"/>
   </xsl:template>
   
   <xsl:template name="debug">
