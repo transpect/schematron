@@ -223,7 +223,8 @@
 	<xsl:param name="space" />
 	
 	<svrl:schematron-output title="{$title}" schemaVersion="{$schemaVersion}" >
-		<xsl:if test=" string-length( normalize-space( $phase )) &gt; 0 and 
+		<axsl:attribute name="xml:base" select="concat(base-uri(/*), '.val')"/>
+	  <xsl:if test=" string-length( normalize-space( $phase )) &gt; 0 and 
 		not( normalize-space( $phase ) = '#ALL') ">
 			<axsl:attribute name="phase">
 				<xsl:value-of select=" $phase " />
