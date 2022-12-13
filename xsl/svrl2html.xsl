@@ -8,22 +8,43 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:sch="http://purl.oclc.org/dsdl/schematron"
   xmlns="http://www.w3.org/1999/xhtml"
-  version="2.0"
+  version="3.0"
   exclude-result-prefixes="svrl s xs html"
   >
 
-<!--  <xsl:param name="collection-uri" as="xs:string?" select="()"/>-->
+  <xsl:param name="collection-uri" as="xs:string?" select="()"/>
+
+  <xsl:variable name="svrl-input" as="document-node(element())+"><!-- svrl:schematron-output or c:errors -->
+    <xsl:try>
+      <xsl:sequence select="collection($collection-uri)">
+        <!-- For invocation from XProc, can be the default collection.
+             For direct invocation with Saxon, $collection-uri must be a URI that points
+             to something like this:
+             <collection>
+               <doc href="file:///path/to/1st.svrl"/>
+               <doc href="file:///path/to/2nd.svrl"/>
+               <doc href="file:///path/to/3rd.svrl"/>
+               …
+             </collection>
+        -->
+      </xsl:sequence>
+      <xsl:catch>
+        <xsl:sequence select="/"/>
+      </xsl:catch>
+    </xsl:try>
+  </xsl:variable>
 
   <xsl:template match="/" mode="#default">
-    <xsl:variable name="doc-uri" select="distinct-values(//svrl:active-pattern/@document)"/>
+    <xsl:variable name="doc-uri" select="distinct-values($svrl-input//svrl:active-pattern/@document)" as="xs:string+"/>
 
     <xsl:variable name="content" as="element(html:tr)*">
-      <xsl:variable name="msgs" as="element(*)*" 
-        select="(:collection($collection-uri):)//svrl:failed-assert | (:collection($collection-uri):)//svrl:successful-report | (:collection($collection-uri):)/c:errors"/>
+      <xsl:variable name="msgs" as="element(*)*"
+        select="$svrl-input//svrl:failed-assert | $svrl-input//svrl:successful-report | $svrl-input/c:errors"/>
+      <xsl:message select="'DDDDDDDDDDDD ', $svrl-input[1]/base-uri(/*), base-uri(root(.))"/>
       <xsl:if test="$msgs">
         <xsl:for-each-group select="$msgs" 
           group-by="replace(
-                      (.//svrl:text/sch:span[@class='srcfile'], replace(base-uri(), '\.val$', ''))[1],
+                      (.//svrl:text/sch:span[@class='srcfile'], replace(base-uri(root(.)/*), '\.val$', ''))[1],
                       '^.+/unzipped/',
                       ''
                     )">
