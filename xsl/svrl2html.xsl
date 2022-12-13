@@ -40,7 +40,6 @@
     <xsl:variable name="content" as="element(html:tr)*">
       <xsl:variable name="msgs" as="element(*)*"
         select="$svrl-input//svrl:failed-assert | $svrl-input//svrl:successful-report | $svrl-input/c:errors"/>
-      <xsl:message select="'DDDDDDDDDDDD ', $svrl-input[1]/base-uri(/*), base-uri(root(.))"/>
       <xsl:if test="$msgs">
         <xsl:for-each-group select="$msgs" 
           group-by="replace(
