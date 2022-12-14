@@ -25,6 +25,9 @@
   <xsl:template match="/">
     <xsl:sequence select="transform(map{'stylesheet-location': 'svrl2html.xsl',
                           'source-node': $svrl}) ? output"/>
+    <xsl:result-document href="{$svrl/*/base-uri()}">
+      <xsl:sequence select="$svrl"/>
+    </xsl:result-document>
   </xsl:template>
 
 </xsl:stylesheet>
