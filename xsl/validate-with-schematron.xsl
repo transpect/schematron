@@ -3,6 +3,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xso="http://transpect.io/generate-xsl"
   xmlns:sch="http://purl.oclc.org/dsdl/schematron"
+  xmlns:map="http://www.w3.org/2005/xpath-functions/map"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="3.0">
 
   <!-- Invocation: saxon -s:file:///path/to/doc.xml -xsl:validate-with-schematron.xsl \
@@ -15,22 +16,27 @@
   <xsl:namespace-alias result-prefix="xsl" stylesheet-prefix="xso"/>
   
   <xsl:output name="debug" indent="true" omit-xml-declaration="false"/>
+
+  <xsl:variable name="base-uri" as="xs:string" select="/*/base-uri()"/>
   
   <xsl:variable name="dsdl-includes" as="document-node(element(sch:schema))"
-    select="transform(map{'stylesheet-location': '../dist/iso_dsdl_include.xsl',
-                          'source-location': $schema-uri}) ? output">
+    select="map:get(transform(map{'stylesheet-location': '../dist/iso_dsdl_include.xsl',
+                                  'base-output-uri': $base-uri,
+                                  'source-location': $schema-uri}), $base-uri)">
   </xsl:variable>
   
   <xsl:variable name="expanded-abstract-patterns" as="document-node(element(sch:schema))"
-    select="transform(map{'stylesheet-location': '../dist/iso_abstract_expand.xsl',
-                          'source-node': $dsdl-includes}) ? output">
+    select="map:get(transform(map{'stylesheet-location': '../dist/iso_abstract_expand.xsl',
+                                  'base-output-uri': $base-uri,
+                                  'source-node': $dsdl-includes}), $base-uri)">
   </xsl:variable>
   
   <xsl:variable name="generated-xsl" as="document-node(element(xsl:stylesheet))"
-    select="transform(map{'stylesheet-location': '../dist/iso_svrl_for_xslt2.xsl',
+    select="map:get(transform(map{'stylesheet-location': '../dist/iso_svrl_for_xslt2.xsl',
                           'source-node': $expanded-abstract-patterns,
+                          'base-output-uri': $base-uri,
                           'stylesheet-params': map{xs:QName('allow-foreign'): 'true'}
-                         }) ? output">
+                         }), $base-uri)">
   </xsl:variable>
 
   <xsl:template match="/">
@@ -40,8 +46,9 @@
           select="($debug-dir-uri, replace(base-uri(), '^(.+/).+$', '$1') || 'debug-sch/')[1]"/>
       </xsl:call-template>
     </xsl:if>
-    <xsl:sequence select="transform(map{'stylesheet-node': $generated-xsl,
-                          'source-node': .}) ? output"/>
+    <xsl:sequence select="map:get(transform(map{'stylesheet-node': $generated-xsl,
+                                                'base-output-uri': $base-uri,
+                                                'source-node': .}), $base-uri)"/>
   </xsl:template>
   
   <xsl:template name="debug">
