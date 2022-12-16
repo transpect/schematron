@@ -12,6 +12,9 @@
   <xsl:param name="schema-uri" as="xs:string"/>
   <xsl:param name="debug" as="xs:boolean" select="false()"/>
   <xsl:param name="debug-dir-uri" as="xs:string?"/>
+  <xsl:param name="full-path-notation" as="xs:string" select="'1'">
+    <!-- full-path-notation = 1|2|3  select the notation for the full paths: 1=computer, 2=human, 3=obsolescent -->
+  </xsl:param>
   
   <xsl:namespace-alias result-prefix="xsl" stylesheet-prefix="xso"/>
   
@@ -35,7 +38,10 @@
     select="map:get(transform(map{'stylesheet-location': '../dist/iso_svrl_for_xslt2.xsl',
                           'source-node': $expanded-abstract-patterns,
                           'base-output-uri': $base-uri,
-                          'stylesheet-params': map{xs:QName('allow-foreign'): 'true'}
+                          'stylesheet-params': map{
+                                                 xs:QName('allow-foreign'): 'true',
+                                                 xs:QName('full-path-notation'): $full-path-notation
+                                               }
                          }), $base-uri)">
   </xsl:variable>
 
@@ -48,7 +54,8 @@
     </xsl:if>
     <xsl:sequence select="map:get(transform(map{'stylesheet-node': $generated-xsl,
                                                 'base-output-uri': $base-uri,
-                                                'source-node': .}), $base-uri)"/>
+                                                'source-node': .
+                                               }), $base-uri)"/>
   </xsl:template>
   
   <xsl:template name="debug">

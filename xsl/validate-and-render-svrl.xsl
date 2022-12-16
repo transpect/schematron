@@ -11,14 +11,20 @@
   <xsl:param name="schema-uri" as="xs:string"/>
   <xsl:param name="debug" as="xs:boolean" select="false()"/>
   <xsl:param name="debug-dir-uri" as="xs:string?"/>
-  
+    <xsl:param name="full-path-notation" as="xs:string" select="'1'">
+    <!-- full-path-notation = 1|2|3  select the notation for the full paths: 1=computer, 2=human, 3=obsolescent -->
+  </xsl:param>
+
   <xsl:output name="debug" indent="true" omit-xml-declaration="false"/>
   
   <xsl:variable name="svrl" as="document-node(element())"
     select="transform(map{'stylesheet-location': 'validate-with-schematron.xsl',
                           'source-node': /,
                           'schema-uri': $schema-uri,
-                          'stylesheet-params': map{xs:QName('schema-uri'): $schema-uri}
+                          'stylesheet-params': map{
+                                                 xs:QName('schema-uri'): $schema-uri,
+                                                 xs:QName('full-path-notation'): $full-path-notation
+                                               }
                          }) ? output">
   </xsl:variable>
   
