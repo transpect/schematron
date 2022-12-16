@@ -72,20 +72,22 @@
                       
                     </td>
                     <td xmlns="http://www.w3.org/1999/xhtml" class="path">
-                      
                       <p>
                         <xsl:value-of select="if (not(matches($active-pattern/@document, '\.xpl$'))) then @location else replace(@location, '^.+xproc-step[^/]+(.+)$', '$1')"/>
                       </p>                      
                     </td>
                     <td xmlns="http://www.w3.org/1999/xhtml" class="message">
-                      
-                        <xsl:apply-templates select="svrl:text/node()[not(self::sch:span[@class eq 'pos'])]" mode="#current"/>
-                      
+                      <xsl:apply-templates select="svrl:text/node()[not(self::sch:span[@class eq 'pos'])]" mode="#current"/>
+                    </td>
+                    <td>
+                      <xsl:if test="exists(svrl:property)">
+                        <dl class="properties">
+                          <xsl:apply-templates select="svrl:property" mode="#current"/>
+                        </dl>
+                      </xsl:if>
                     </td>
                     <td xmlns="http://www.w3.org/1999/xhtml" class="pattern-id">
-                     
                       <xsl:value-of select="replace(@id, '_', '&#x200b;_')"/>
-                      
                     </td>
                   </xsl:when>
                   <xsl:otherwise>
@@ -201,7 +203,7 @@
         <body xmlns="http://www.w3.org/1999/xhtml">
           <div class="header">
             <ul class="header-list">
-              <li><img class="logo" src="http://this.transpect.io/a9s/common/template/icons/dav.svg"/></li>
+              <li><!--<img class="logo" src="http://this.transpect.io/a9s/common/template/icons/dav.svg"/>--></li>
             </ul>
             <ul class="header-list right">
               <li class="name">Batch XML Validation</li>
@@ -228,10 +230,11 @@
           <div class="content">
             <table xmlns="http://www.w3.org/1999/xhtml" border="1" valign="top">
               <tr xmlns="http://www.w3.org/1999/xhtml" class="head">
-                <th xmlns="http://www.w3.org/1999/xhtml" style="width:10%">severity</th>
-                <th xmlns="http://www.w3.org/1999/xhtml" style="width:40%">path / test</th>
-                <th xmlns="http://www.w3.org/1999/xhtml" style="width:40%">message</th>
-                <th xmlns="http://www.w3.org/1999/xhtml" style="width:10%">pattern-id</th>
+                <th xmlns="http://www.w3.org/1999/xhtml" style="width:6%">severity</th>
+                <th xmlns="http://www.w3.org/1999/xhtml" style="width:35%">path / test</th>
+                <th xmlns="http://www.w3.org/1999/xhtml" style="width:35%">message</th>
+                <th xmlns="http://www.w3.org/1999/xhtml" style="width:16%">properties</th>
+                <th xmlns="http://www.w3.org/1999/xhtml" style="width:8%">pattern-id</th>
               </tr>
               <xsl:sequence select="$content"/>
             </table>
@@ -288,6 +291,15 @@
     <em xmlns="http://www.w3.org/1999/xhtml">
       <xsl:apply-templates mode="#current" />
     </em>
+  </xsl:template>
+  
+  <xsl:template match="svrl:property" mode="#default">
+    <dt>
+      <xsl:value-of select="@id"/>
+    </dt>
+    <dd>
+      <xsl:apply-templates mode="#current"/>
+    </dd>
   </xsl:template>
 
   <xsl:template match="* | @*" mode="#default">
